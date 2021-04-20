@@ -88,7 +88,7 @@ contract FlightSuretyApp {
     {
         contractOwner = msg.sender;
         flightSuretyData = FlightSuretyData(dataContract);
-        
+
         flightSuretyData.registerAirline("Egypt air", true);
     }
 
