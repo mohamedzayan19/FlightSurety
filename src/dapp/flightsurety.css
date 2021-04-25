@@ -40,3 +40,81 @@ label.form {
 input {
     margin-right: 30px;
 }
+
+.flights {
+    width: 15%;
+    text-align: center;
+}
+.departures {
+
+}
+.timeleft {
+    
+}
+
+.intheGreen {
+    color: #00ff00;
+}
+
+.newButton {
+    background-color: #006ff2;
+    border: black;
+    border-radius: 11%;
+    border-style: hidden;
+    color: white;
+    width: 100%;
+}
+
+.newButton:hover {
+    background-color: #4CAF50; /* Green */
+    color: white;
+  }
+
+
+  .loader {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .newInsure {
+    background-color: #006ff2;
+    border: black;
+    border-radius: 11%;
+    border-style: hidden;
+    color: white;
+    width: 100%;
+}
+
+.newInsure:hover {
+    background-color: #4CAF50; /* Green */
+    color: white;
+  }
+
+.mediumFont {
+    font-size: medium;
+}
+
+#credit {
+    background-color: #006ff2;
+    border: black;
+    border-radius: 11%;
+    border-style: hidden;
+    color: white;
+    width: 100%;
+}
+
+#credit:hover {
+    background-color: #4CAF50; /* Green */
+    color: white;
+  }

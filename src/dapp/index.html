@@ -1,6 +1,24 @@
 <!doctype html>
 <html lang="en">
-
+<style>
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+        
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+            background-color: cadetblue;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #dddddd;
+            
+        }
+        </style>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -10,22 +28,47 @@
 </head>
 
 <body>
-
     <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-        <a class="navbar-brand" href="#">FlightSurety</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
-            aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <h1 class="navbar-brand">FlightSurety</h1>
+        <span style="margin-left: 50%;" id = "needforcredit">
+        <div id = "operation" class = "navbar-brand" style="margin-left: auto;" style="font-size: medium;">
+        </div>
+
+        <div id = "yourBalance"  class = "navbar-brand" style="font-size: medium;"> 
+        </div>
+
+        <div id = "yourAddress"  class = "navbar-brand" style="font-size: medium;"> 
+        </div>
+
+        <div id = "creditAmount"  class = "navbar-brand" style="font-size: medium;"> 
+        </div>
+
+    </span>
+    
     </nav>
 
-    <main class="container">
+    <main class="container" id = "flights">
+            <table id = "yourFlights">
+                <h2>Your Flights</h2>
+                    <tr>
+                      <th>Flight Number</th>
+                      <th>Airline</th>
+                      <th>Departure Time</th>
+                      <th></th>
+                    </tr>
+            </table>
+            <table id = "flightInfoTable">
+                <h2>Available Flights</h2>
+                    <tr>
+                      <th>Flight Number</th>
+                      <th>Airline</th>
+                      <th>Price  &#9830;</th>
+                      <th>Departure Time</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+            </table>
 
-        <div id="display-wrapper" class="top-20">
-        </div>
-        <div class="row top-20">
-            <label class="form">Flight</label> <input type="text" id="flight-number"> <btn class="btn btn-primary" id="submit-oracle">Submit to Oracles</btn>
-        </div>
     </main>
 
 </body>

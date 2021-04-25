@@ -4,7 +4,7 @@ var Test = require('../config/testConfig.js');
 
 contract('Oracles', async (accounts) => {
 
-  const TEST_ORACLES_COUNT = 10;
+  const TEST_ORACLES_COUNT = 8;
   var config;
   before('setup contract', async () => {
     config = await Test.Config(accounts);
@@ -60,9 +60,9 @@ contract('Oracles', async (accounts) => {
       for(let idx=0;idx<3;idx++) {
 
         try {
-                console.log(oracleIndexes[idx]);
+                console.log(oracleIndexes[idx].toNumber());
           // Submit a response...it will only be accepted if there is an Index match
-          await config.flightSuretyApp.submitOracleResponse(oracleIndexes[idx], config.firstAirline, flight, timestamp, STATUS_CODE_ON_TIME, { from: accounts[a] });
+          await config.flightSuretyApp.submitOracleResponse(oracleIndexes[idx].toNumber(), config.firstAirline, flight, timestamp, STATUS_CODE_ON_TIME, { from: accounts[a] });
 
         }
         catch(e) {
