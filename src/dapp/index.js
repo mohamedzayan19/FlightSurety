@@ -1,3 +1,4 @@
+
 import DOM from './dom';
 import Contract from './contract';
 import './flightsurety.css';
@@ -81,7 +82,7 @@ let contract;
           });
 
         // Read transaction
-        web3.eth.getBalance(contract.options.address, (error, result) => {
+        contract.balance((error, result) => {
           let button = document.createElement("button");
           let tag = document.getElementById("yourBalance");
           tag.innerText = "Your Balance : "+result;
@@ -114,7 +115,7 @@ let statusFound = [];
 setInterval(function(){ 
     let timeNow =  document.getElementsByClassName("timeleft");
     let statusNow =  document.getElementsByClassName("intheGreen");
-    web3.eth.getBalance(contract.options.address, (error, result) => {
+    contract.balance((error, result) => {
         document.getElementById("yourBalance").innerText = "Your Balance : "+result;
       });
     contract.credit((error, result) => {
@@ -214,3 +215,5 @@ function purchaseFlight(error,flight) {
 }
 
 }
+
+

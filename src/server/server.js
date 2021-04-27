@@ -5,10 +5,12 @@ import Web3 from 'web3';
 import express from 'express';
 import { Random } from "random-js";
 import { resolve } from 'path';
+import "babel-polyfill";
 
 let config = Config['localhost'];
 let web3 = new Web3(new Web3.providers.WebsocketProvider(config.url.replace('http', 'ws')));
 web3.eth.defaultAccount = web3.eth.accounts[0];
+
 let flightSuretyApp = new web3.eth.Contract(FlightSuretyApp.abi, config.appAddress);
 let flightSuretyData = new web3.eth.Contract(FlightSuretyData.abi, config.dataAddress);
 let firstAirline;
@@ -175,3 +177,5 @@ app.get('/api/fetchFlights', (req, res) => {
 
 
 export default app;
+
+

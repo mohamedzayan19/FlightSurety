@@ -12,6 +12,14 @@ module.exports = {
     {
         test: /\.(js|jsx)$/,
         use: "babel-loader",
+        use: {
+          loader: 'babel-loader',
+          options: {
+              presets: ['@babel/preset-env',
+                          '@babel/react',{
+                          'plugins': ['@babel/plugin-proposal-class-properties']}]
+          }
+      },
         exclude: /node_modules/
       },
       {
@@ -34,7 +42,9 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({ 
       template: path.join(__dirname, "src/dapp/index.html")
-    })
+    }),
+     
+    
   ],
   resolve: {
     extensions: [".js"]
