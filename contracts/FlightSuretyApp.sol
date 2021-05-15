@@ -72,6 +72,12 @@ contract FlightSuretyApp {
         _;
     }
 
+    modifier existsAirline(address airlineAddress)
+    {
+        require(flightSuretyData.existsAirline(airlineAddress)== true, "Airline already registered");
+        _;
+    }
+
     /********************************************************************************************/
     /*                                       CONSTRUCTOR                                        */
     /********************************************************************************************/
@@ -89,7 +95,7 @@ contract FlightSuretyApp {
         contractOwner = msg.sender;
         flightSuretyData = FlightSuretyData(dataContract);
 
-        flightSuretyData.registerAirline("Egypt air", true);
+        flightSuretyData.registerAirline("Egypt Air", true,address(0x627306090abaB3A6e1400e9345bC60c78a8BEf57));
     }
 
     /********************************************************************************************/
@@ -115,9 +121,11 @@ contract FlightSuretyApp {
     */   
     function registerAirline
                             (
+                                address airline,
                                 string name   
                             )
                             external
+                            existsAirline(airline)
                             isActiveAirline(msg.sender)
                             returns(bool success, uint256 votes)
                                     
@@ -125,7 +133,7 @@ contract FlightSuretyApp {
         votes = 0;
         success = false;
         if(no_airlines<4){
-            flightSuretyData.registerAirline(name,false);
+            flightSuretyData.registerAirline(name,false, airline);
             no_airlines++;
             success = true;
         }else{
@@ -140,7 +148,7 @@ contract FlightSuretyApp {
             multiCallers.push(msg.sender);
             votes = multiCallers.length;
             if(multiCallers.length>=M){
-                flightSuretyData.registerAirline(name, false);
+                flightSuretyData.registerAirline(name, false, msg.sender);
                 no_airlines++;
                 success = true;
                 multiCallers = new address[](0);
@@ -168,7 +176,7 @@ contract FlightSuretyApp {
                                 isActiveAirline(msg.sender)
     {
         require(msg.sender == airline, "You can only register your own flights");
-        Flight memory flight = Flight(true, 0, updatedTimestamp, airline);
+        Flight memory flight = Flight(true, 10, updatedTimestamp, airline);
         bytes32 key = getFlightKey(airline, flightName, updatedTimestamp);
         flights[key] = flight;
     }
@@ -186,13 +194,20 @@ contract FlightSuretyApp {
                                 )
                                 internal
     {
+        bytes32 key = getFlightKey(airline, flight, timestamp);
+        flights[key].statusCode = statusCode;
         if(statusCode==20){
-            bytes32 key = getFlightKey(airline, flight, timestamp);
             flightSuretyData.creditInsurees(key);
         }
     }
 
-
+    function getFlightStatus(string flight ,uint256 _timestamp, address airline) external
+      requireIsOperational()
+      returns(bool registered, uint256 status,uint256 departuretime, bytes32 _key)
+      {
+        bytes32 key = getFlightKey(airline, flight, _timestamp);
+        return (flights[key].isRegistered, flights[key].statusCode, flights[key].updatedTimestamp ,key) ;
+      }
     // Generate a request for oracles to fetch flight information
     function fetchFlightStatus
                         (
@@ -201,6 +216,7 @@ contract FlightSuretyApp {
                             uint256 timestamp                            
                         )
                         external
+                        returns (bytes32)
     {
         uint8 index = getRandomIndex(msg.sender);
 
@@ -212,6 +228,7 @@ contract FlightSuretyApp {
                                             });
 
         emit OracleRequest(index, airline, flight, timestamp);
+        return key;
     } 
 
 
@@ -385,11 +402,76 @@ contract FlightSuretyApp {
     }
 
 // endregion
+    function buy
+                            (
+                                string flight ,
+                                uint256 _timestamp, 
+                                address airline
+                            )
+                            external
+                            payable
+    {
+        bytes32 key = getFlightKey(airline, flight, _timestamp);
+        flightSuretyData.buy(key,msg.sender,msg.value);
+    }
+
+    function creditAmount   (
+                                address buyer
+                            ) 
+    external 
+      requireIsOperational()
+      returns (uint256)
+      {
+        return(flightSuretyData.getAmounts(buyer));
+      }
+
+         /**
+    * @dev Initial funding for the insurance. Unless there are too many delayed flights
+    *      resulting in insurance payouts, the contract should be self-sustaining
+    *
+    */   
+    function fund
+                            (
+                            )
+                            public
+                            payable
+    {
+        require(msg.value>=10, "Minimum requirement is 10 ether");
+        flightSuretyData.fund(msg.sender);
+    }
+    function isRegistered
+                            (
+                                address _address
+                            )
+                            public
+                            returns (bool)
+    {
+        return flightSuretyData.isRegistered(_address);
+    }
+
+    function getPassengers
+                            (
+                                string flight,
+                                uint256 _timestamp,
+                                address airline
+                            )
+                            public
+                            returns (uint256)
+    {
+        bytes32 key = getFlightKey(airline, flight, _timestamp);
+        return flightSuretyData.getPassengers(key);
+    }
 
 }   
 
 contract FlightSuretyData {
-    function registerAirline(string name, bool activated) external;
+    function registerAirline(string name, bool activated, address _addr) external;
     function isActiveAirline(address airlineAddress) external returns(bool);
-        function creditInsurees(bytes32 key) external;
+    function existsAirline(address airlineAddress) external returns(bool);
+    function creditInsurees(bytes32 key) external;
+    function buy(bytes32 flight, address buyer, uint256 amount) external;
+    function getAmounts(address _address) external returns (uint256);
+    function fund(address) external;
+    function isRegistered(address) external returns (bool);
+    function getPassengers(bytes32 key) external returns (uint256);
 }

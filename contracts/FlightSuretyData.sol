@@ -15,6 +15,7 @@ contract FlightSuretyData {
     struct Airline {
         string name;
         bool activated;
+        bool exists;
     }
 
     mapping(address => Airline) airlines;
@@ -117,6 +118,12 @@ contract FlightSuretyData {
 
     }
 
+    function existsAirline(address airlineAddress) external returns(bool)
+    {
+        return(airlines[airlineAddress].exists==false);
+
+    }
+
     function authorizeCaller(address appContract) external
     {
         authorizedContract = appContract;
@@ -135,12 +142,13 @@ contract FlightSuretyData {
     function registerAirline
                             (
                                 string name,
-                                bool activated  
+                                bool activated ,
+                                address _addr
                             )
                             external
     {
-        Airline memory airline = Airline(name, activated);
-        airlines[msg.sender] = airline; 
+        Airline memory airline = Airline(name, activated, true);
+        airlines[_addr] = airline; 
     }
 
 
@@ -150,16 +158,21 @@ contract FlightSuretyData {
     */   
     function buy
                             (
-                                bytes32 flight                             
+                                bytes32 flight,
+                                address buyer,
+                                uint256 amount                            
                             )
                             external
                             payable
     {
-        require(msg.value+balances[msg.sender]<=1, "Cannot invest more tha one ether");
+        require(msg.value+balances[buyer]<=1, "Cannot invest more tha one ether");
 
-        investmentsPerFlight[msg.sender][flight] += msg.value;
+        investmentsPerFlight[buyer][flight] += msg.value;
 
-        balances[msg.sender] += msg.value;
+        flightPassengers[flight].push(buyer);
+
+        //balances[buyer] += amount;
+
     }
 
     /**
@@ -176,7 +189,7 @@ contract FlightSuretyData {
             address passenger = passengers[c];
             uint256 flightInvestment = investmentsPerFlight[passenger][key];
             uint256 value = flightInvestment.mul(3)-flightInvestment;
-            balances[msg.sender] = balances[msg.sender] + value;
+            balances[passenger] = balances[passenger] + value;
         } 
     }
     
@@ -201,13 +214,13 @@ contract FlightSuretyData {
     *
     */   
     function fund
-                            (   
+                            (
+                                address _addr
                             )
                             public
                             payable
     {
-        require(msg.value>=10, "Minimum requirement is 10 ether");
-        airlines[msg.sender].activated=true;
+        airlines[address(_addr)].activated=true;
     }
 
     function getFlightKey
@@ -231,9 +244,34 @@ contract FlightSuretyData {
                             external 
                             payable 
     {
-        fund();
+        fund(msg.sender);
     }
 
 
+    function getAmounts(address _address) external view
+    requireIsOperational()
+    returns (uint256)
+      {
+        return (balances[_address]);
+      }
+    function isRegistered
+                            (
+                                address _address
+                            )
+                            public
+                            returns (bool)
+    {
+        return airlines[_address].exists;
+    }
+
+   function getPassengers
+                            (
+                                bytes32 key
+                            )
+                            public
+                            returns (uint256)
+    {
+        return flightPassengers[key].length;
+    }
 }
 
