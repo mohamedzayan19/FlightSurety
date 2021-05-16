@@ -32,8 +32,8 @@ let timestamp = (new Date).getTime();
         let fee = web3.utils.toWei('11', 'ether')
         await flightSuretyApp.methods.registerAirline(airlines[b],airline_name[b]).send({from:airlines[0], gas:3000000});
         await flightSuretyApp.methods.fund().send({from:airlines[b], value:fee, gas:3000000});
-        let isReg = await flightSuretyApp.methods.isRegisterAirline(airlines[b]).call();
-        console.log(isReg);
+        //let isReg = await flightSuretyApp.methods.isRegisterAirline(airlines[b]).call();
+        //console.log(isReg);
     }catch(error){
       console.log(error);
     }
