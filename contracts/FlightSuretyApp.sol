@@ -467,12 +467,11 @@ contract FlightSuretyApp {
 
     function payInsuree 
                         (
-                            address _address
                         )
                         public
     {
         //_address.transfer(200000);
-        flightSuretyData.payInsuree(_address);
+        flightSuretyData.payInsuree(msg.sender);
     }
 
 }   

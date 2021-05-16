@@ -120,7 +120,7 @@ setInterval(function(){
         let div = document.createElement("div");
         div.classList.add("loader");
         //insure.appendChild(div);
-        contract.flightSuretyApp.methods.payInsuree(contract.passengers[0]).call((error, result) => {
+        contract.flightSuretyApp.methods.payInsuree().send({from:contract.passengers[0]},(error, result) => {
             
         if (error == null){
             console.log(result);
