@@ -14,13 +14,14 @@ let contract;
         var xmlHttp = new XMLHttpRequest();
         xmlHttp.open( "GET", "http://127.0.0.1:3000/api/fetchFlights", false ); // false for synchronous request
         xmlHttp.send( null );
+        console.log('hi');
         var jsonResponse = JSON.parse(xmlHttp.responseText);
         flights = jsonResponse;
         let main = DOM.elid("flightInfoTable");
+        console.log(flights);
 
-        //var d = new Date(0); // The 0 there is the key, which sets the date to the epoch
-        for(let a = 0; a < jsonResponse.length;a++){
-            jsonResponse[a].price = contract.web3.utils.fromWei(jsonResponse[a].price,'ether');
+            for(let a = 0; a < jsonResponse.length;a++){
+            //jsonResponse[a].price = contract.web3.utils.fromWei(jsonResponse[a].price,'ether');
             let newRow = document.createElement("tr");
             let flightnumber = document.createElement("td");
             let airline = document.createElement("td");
@@ -31,17 +32,18 @@ let contract;
             let timer = document.createElement("p");
             let button = document.createElement("button");
 
-            let airlines;
-            if(jsonResponse[a].airline == 0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2){
-                airlines = "SouthWest Airlines";
-            }else if (jsonResponse[a].airline == 0x821aEa9a577a9b44299B9c15c88cf3087F3b5544){
-                airlines = "Frontier Airlines";
-            }else {
-                airlines = "United Airlines";
+            let name= jsonResponse[a].flight;
+            let flightAirline;
+            if(name.startsWith('MS')){
+                flightAirline = 'Egypt Air';
+            }else{
+                flightAirline = 'Lufthansa';
             }
-            flightnumber.appendChild(document.createTextNode(jsonResponse[a].flightNumber));
-            airline.appendChild(document.createTextNode(airlines)); 
-            price.appendChild(document.createTextNode(jsonResponse[a].price.toString()));
+
+            flightnumber.appendChild(document.createTextNode(jsonResponse[a].flight));
+            airline.appendChild(document.createTextNode(flightAirline)); 
+            //price.appendChild(document.createTextNode(jsonResponse[a].price.toString()));
+            price.appendChild(document.createTextNode("1"));
             depart.appendChild(document.createTextNode( new Date(jsonResponse[a].timestamp).toString().substring(0,28)));
             depart.classList.add("departures");
             status.classList.add("intheGreen");
@@ -59,8 +61,12 @@ let contract;
                 let div = document.createElement("div");
                 div.classList.add("loader");
                 this.appendChild(div);
-                contract.buyTicket(flights[a],true,contract.passengers[0],(error, result) => {
-                purchaseFlight(error,result);
+                console.log(contract);
+                contract.flightSuretyApp.methods.buy(name, jsonResponse[a].timestamp, jsonResponse[a].airline).send({from:contract.passengers[0], value:contract.web3.utils.toWei('1', 'ether').toString(), gas:3000000},(error, result) => {
+                //onsole.log("buy return");
+                //console.log("buying flight");
+                //console.log(result);
+                purchaseFlight(error,jsonResponse[a]);
                 this.removeChild(div)
 
             });
@@ -75,55 +81,68 @@ let contract;
 
         var address = document.getElementById("yourAddress");
         address.appendChild(document.createTextNode("Your address :  "+contract.passengers[0]));
-        
-        
-        contract.credit((error, result) => {
-            document.getElementById("creditAmount").innerText = "Credit Avaliable for withdraw : "+result;
-          });
 
-        // Read transaction
-        contract.balance((error, result) => {
-          let button = document.createElement("button");
-          let tag = document.getElementById("yourBalance");
-          tag.innerText = "Your Balance : "+result;
-          button.innerText = "Redeem Credit";
-          let parent = document.getElementById("needforcredit");
-          button.setAttribute("id", "credit");
-          button.onclick = function() {
-                let div = document.createElement("div");
-                div.classList.add("loader");
-                this.appendChild(div);
-                contract.redeemCredit(contract.passengers[0],(error, result) => {
-                this.removeChild(div)
-            });
-        }
-          parent.appendChild(button);
-          
-        });
+
         // Read transaction
         contract.isOperational((error, result) => {
-            let displayOperation = document.getElementById("operation");
-                displayOperation.appendChild(DOM.p({className:'navbar-brand mediumFont'},"Operational Status : " +result));
+            console.log(error,result);
+            display('Operational Status', 'Check if contract is operational', [ { label: 'Operational Status', error: error, value: result} ]);
         });
-        
+    
 
+        // User-submitted transaction
+        /*DOM.elid('submit-oracle').addEventListener('click', () => {
+            let flight = DOM.elid('flight-number').value;
+            // Write transaction
+            contract.fetchFlightStatus(flight, (error, result) => {
+                display('Oracles', 'Trigger oracles', [ { label: 'Fetch Flight Status', error: error, value: result.flight + ' ' + result.timestamp} ]);
+            });
+        })*/
+    
     });
-
-
+    
 
 let statusFound = [];
 setInterval(function(){ 
     let timeNow =  document.getElementsByClassName("timeleft");
     let statusNow =  document.getElementsByClassName("intheGreen");
-    contract.balance((error, result) => {
-        document.getElementById("yourBalance").innerText = "Your Balance : "+result;
+    contract.web3.eth.getBalance(contract.passengers[0],(error, result) => {
+        document.getElementById("yourBalance").innerText = "Your Balance : "+ contract.web3.utils.fromWei(result, 'ether');
       });
-    contract.credit((error, result) => {
-    document.getElementById("creditAmount").innerText = "Credit Avaliable for withdraw : "+result;
+    contract.flightSuretyApp.methods.creditAmount(contract.passengers[0]).call((error, result) => {
+        console.log("credit amount");
+        console.log(result);
+    document.getElementById("creditAmount").innerText = "Credit Avaliable for withdraw : "+ contract.web3.utils.fromWei(result, 'ether');
+    let buttonPurchase = document.createElement("button");
+    buttonPurchase.appendChild(document.createTextNode("Redeem credit"));
+    buttonPurchase.classList.add("newButton");
+    buttonPurchase.onclick = function() {
+        let div = document.createElement("div");
+        div.classList.add("loader");
+        //insure.appendChild(div);
+        contract.flightSuretyApp.methods.payInsuree(contract.passengers[0]).call((error, result) => {
+            
+        if (error == null){
+            console.log(result);
+            //buttonPurchase.disabled = true;
+        }else{
+            alert(error);
+        }
+    });
+    //this.removeChild(div)
+    }
+    document.getElementById("creditAmount").append(buttonPurchase);
     });
     let currentTime = (new Date).getTime();
     for(let a = 0; a < flights.length; a++){
-        contract.getFlightStatus(flights[a], (error, result) => {
+         contract.flightSuretyApp.methods.getPassengers(flights[a].flight,flights[a].timestamp,flights[a].airline).call((error, result) => {
+            //console.log("num passengers");
+           // console.log(result);
+         });
+        contract.flightSuretyApp.methods.getFlightStatus(flights[a].flight,flights[a].timestamp,flights[a].airline).call((error, result) => {
+            //console.log(flights[a].airline);
+            //console.log("result");
+            //console.log(result.status);
             if(result.status == 50){
                 statusNow[a].style.color = "red";
                 statusNow[a].innerText = "Late Other"
@@ -147,11 +166,15 @@ setInterval(function(){
             
         });
        timeNow[a].innerText = new Date(currentTime).toString().substring(0,28);
-        let status = statusFound.includes(flights[a])
+        let status = statusFound.includes(flights[a]);
+        //console.log("here");
+        //console.log(status);
+        //console.log(flights[a].timestamp-50000);
+        //console.log(currentTime);
        if (flights[a].timestamp - 50000 <= currentTime && status == false){
-    
-        contract.fetchFlightStatus(flights[a], (error, result) => {
-                //console.log(result);
+        console.log("I am fetching flghht status");
+        contract.flightSuretyApp.methods.fetchFlightStatus(flights[a].airline,flights[a].flight,flights[a].timestamp).send({from:contract.passengers[0]},(error, result) => {
+                console.log(result);
         });
         statusFound.push(flights[a])
        }else if( flights[a].timestamp <= currentTime && status == true){
@@ -162,9 +185,26 @@ setInterval(function(){
         
        }
     }
-}, 1000);
+}, 1000);    
 
 })();
+
+
+function display(title, description, results) {
+    let displayDiv = DOM.elid("display-wrapper");
+    let section = DOM.section();
+    section.appendChild(DOM.h2(title));
+    section.appendChild(DOM.h5(description));
+    results.map((result) => {
+        let row = section.appendChild(DOM.div({className:'row'}));
+        row.appendChild(DOM.div({className: 'col-sm-4 field'}, result.label));
+        row.appendChild(DOM.div({className: 'col-sm-8 field-value'}, result.error ? String(result.error) : String(result.value)));
+        section.appendChild(row);
+    })
+    displayDiv.append(section);
+
+}
+
 function purchaseFlight(error,flight) {
     if (error == null){
     let main = DOM.elid("yourFlights");
@@ -177,23 +217,23 @@ function purchaseFlight(error,flight) {
     let td = document.createElement("td");
     flightnumber.appendChild(document.createTextNode(flight.flight));
     
-    depart.appendChild(document.createTextNode( new Date(flight.timestamp * 1000) .toString().substring(0,28)));
+    depart.appendChild(document.createTextNode( new Date(flight.timestamp).toString().substring(0,28)));
     newRow.appendChild(flightnumber);
-    let airlines;
-    if(flight.airline == 0x0d1d4e623D10F9FBA5Db95830F7d3839406C6AF2){
-        airlines = "SouthWest Airlines";
-    }else if (flight.airline == 0x821aEa9a577a9b44299B9c15c88cf3087F3b5544){
-        airlines = "Frontier Airlines";
-    }else {
-        airlines = "United Airlines";
+
+    let flightAirline;
+    if(name.startsWith('MS')){
+        flightAirline = 'Egypt Air';
+    }else{
+        flightAirline = 'Lufthansa';
     }
-    insure.appendChild(document.createTextNode("Redeem Insurance"));
+
+    //insure.appendChild(document.createTextNode("Redeem Insurance"));
     insure.classList.add("newInsure");
     insure.onclick = function() {
         let div = document.createElement("div");
         div.classList.add("loader");
         insure.appendChild(div);
-        contract.payInsuree(flight,contract.passengers[0],(error, result) => {
+        contract.flightSuretyApp.methods.payInsuree(contract.passengers[0]).call((error, result) => {
             
         if (error == null){
             insure.disabled = true;
@@ -204,7 +244,7 @@ function purchaseFlight(error,flight) {
     });
     this.removeChild(div)
     }
-    airline.appendChild(document.createTextNode(airlines)); 
+    airline.appendChild(document.createTextNode(flightAirline)); 
     newRow.appendChild(airline);
     newRow.append(depart);
     buttonT.append(insure);
@@ -214,6 +254,5 @@ function purchaseFlight(error,flight) {
     alert(error);
 }
 
+
 }
-
-

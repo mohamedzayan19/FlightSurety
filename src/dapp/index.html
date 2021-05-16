@@ -1,34 +1,5 @@
 <!doctype html>
 <html lang="en">
-<style>
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-        }
-        
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-            background-color: cadetblue;
-        }
-        
-        tr:nth-child(even) {
-            background-color: #dddddd;
-            
-        }
-        </style>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>FlightSurety</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-</head>
-
-<body>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
         <h1 class="navbar-brand">FlightSurety</h1>
         <span style="margin-left: 50%;" id = "needforcredit">
         <div id = "operation" class = "navbar-brand" style="margin-left: auto;" style="font-size: medium;">
@@ -44,10 +15,35 @@
         </div>
 
     </span>
-    
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>FlightSurety</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+         <h1 class="navbar-brand">FlightSurety</h1>
+        <span style="margin-left: 50%;" id = "needforcredit">
+        <div id = "operation" class = "navbar-brand" style="margin-left: auto;" style="font-size: medium;">
+        </div>
+
+        <div id = "yourBalance"  class = "navbar-brand" style="font-size: medium;"> 
+        </div>
+
+        <div id = "yourAddress"  class = "navbar-brand" style="font-size: medium;"> 
+        </div>
+
+        <div id = "creditAmount"  class = "navbar-brand" style="font-size: medium;"> 
+        </div>
+
+    </span>
     </nav>
 
-    <main class="container" id = "flights">
+    <main class="container">
             <table id = "yourFlights">
                 <h2>Your Flights</h2>
                     <tr>
@@ -57,6 +53,7 @@
                       <th></th>
                     </tr>
             </table>
+
             <table id = "flightInfoTable">
                 <h2>Available Flights</h2>
                     <tr>
@@ -69,6 +66,8 @@
                     </tr>
             </table>
 
+        <div id="display-wrapper" class="top-20">
+        </div>
     </main>
 
 </body>
