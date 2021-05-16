@@ -165,9 +165,9 @@ contract FlightSuretyData {
                             external
                             payable
     {
-        require(msg.value+balances[buyer]<=1, "Cannot invest more tha one ether");
+       // require(amount+investmentsPerFlight[buyer][flight]<=1, "Cannot invest more tha one ether");
 
-        investmentsPerFlight[buyer][flight] += msg.value;
+        investmentsPerFlight[buyer][flight] += amount;
 
         flightPassengers[flight].push(buyer);
 
@@ -244,7 +244,7 @@ contract FlightSuretyData {
                             external 
                             payable 
     {
-        fund(msg.sender);
+        //fund(msg.sender);
     }
 
 
@@ -272,6 +272,18 @@ contract FlightSuretyData {
                             returns (uint256)
     {
         return flightPassengers[key].length;
+    }
+
+    function payInsuree 
+                        (
+                            address _address
+                        )
+                        public
+    {
+        require(balances[_address]>0, "Not enough balance");
+        uint256 balance = balances[_address];
+        balances[_address] = 0;
+        _address.transfer(balance);
     }
 }
 

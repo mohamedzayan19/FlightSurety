@@ -412,6 +412,7 @@ contract FlightSuretyApp {
                             payable
     {
         bytes32 key = getFlightKey(airline, flight, _timestamp);
+        //address(flightSuretyData).transfer(2);
         flightSuretyData.buy(key,msg.sender,msg.value);
     }
 
@@ -437,6 +438,8 @@ contract FlightSuretyApp {
                             payable
     {
         require(msg.value>=10, "Minimum requirement is 10 ether");
+        //address receiver = address(flightSuretyData);
+        address(flightSuretyData).transfer(msg.value);
         flightSuretyData.fund(msg.sender);
     }
     function isRegistered
@@ -462,6 +465,16 @@ contract FlightSuretyApp {
         return flightSuretyData.getPassengers(key);
     }
 
+    function payInsuree 
+                        (
+                            address _address
+                        )
+                        public
+    {
+        //_address.transfer(200000);
+        flightSuretyData.payInsuree(_address);
+    }
+
 }   
 
 contract FlightSuretyData {
@@ -474,4 +487,5 @@ contract FlightSuretyData {
     function fund(address) external;
     function isRegistered(address) external returns (bool);
     function getPassengers(bytes32 key) external returns (uint256);
+    function payInsuree(address) public;
 }

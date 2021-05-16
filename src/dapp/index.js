@@ -43,6 +43,7 @@ let contract;
             flightnumber.appendChild(document.createTextNode(jsonResponse[a].flight));
             airline.appendChild(document.createTextNode(flightAirline)); 
             //price.appendChild(document.createTextNode(jsonResponse[a].price.toString()));
+            price.appendChild(document.createTextNode("1"));
             depart.appendChild(document.createTextNode( new Date(jsonResponse[a].timestamp).toString().substring(0,28)));
             depart.classList.add("departures");
             status.classList.add("intheGreen");
@@ -63,7 +64,8 @@ let contract;
                 console.log(contract);
                 contract.flightSuretyApp.methods.buy(name, jsonResponse[a].timestamp, jsonResponse[a].airline).send({from:contract.passengers[0], value:contract.web3.utils.toWei('1', 'ether').toString(), gas:3000000},(error, result) => {
                 //onsole.log("buy return");
-                console.log(result);
+                //console.log("buying flight");
+                //console.log(result);
                 purchaseFlight(error,jsonResponse[a]);
                 this.removeChild(div)
 
@@ -108,20 +110,39 @@ setInterval(function(){
         document.getElementById("yourBalance").innerText = "Your Balance : "+ contract.web3.utils.fromWei(result, 'ether');
       });
     contract.flightSuretyApp.methods.creditAmount(contract.passengers[0]).call((error, result) => {
-        //console.log("credit amount");
-        //console.log(result);
+        console.log("credit amount");
+        console.log(result);
     document.getElementById("creditAmount").innerText = "Credit Avaliable for withdraw : "+ contract.web3.utils.fromWei(result, 'ether');
+    let buttonPurchase = document.createElement("button");
+    buttonPurchase.appendChild(document.createTextNode("Redeem credit"));
+    buttonPurchase.classList.add("newButton");
+    buttonPurchase.onclick = function() {
+        let div = document.createElement("div");
+        div.classList.add("loader");
+        //insure.appendChild(div);
+        contract.flightSuretyApp.methods.payInsuree(contract.passengers[0]).call((error, result) => {
+            
+        if (error == null){
+            console.log(result);
+            //buttonPurchase.disabled = true;
+        }else{
+            alert(error);
+        }
+    });
+    //this.removeChild(div)
+    }
+    document.getElementById("creditAmount").append(buttonPurchase);
     });
     let currentTime = (new Date).getTime();
     for(let a = 0; a < flights.length; a++){
          contract.flightSuretyApp.methods.getPassengers(flights[a].flight,flights[a].timestamp,flights[a].airline).call((error, result) => {
             //console.log("num passengers");
-            //console.log(result);
+           // console.log(result);
          });
         contract.flightSuretyApp.methods.getFlightStatus(flights[a].flight,flights[a].timestamp,flights[a].airline).call((error, result) => {
             //console.log(flights[a].airline);
             //console.log("result");
-            //console.log(result);
+            //console.log(result.status);
             if(result.status == 50){
                 statusNow[a].style.color = "red";
                 statusNow[a].innerText = "Late Other"
@@ -196,7 +217,7 @@ function purchaseFlight(error,flight) {
     let td = document.createElement("td");
     flightnumber.appendChild(document.createTextNode(flight.flight));
     
-    depart.appendChild(document.createTextNode( new Date(flight.timestamp * 1000) .toString().substring(0,28)));
+    depart.appendChild(document.createTextNode( new Date(flight.timestamp).toString().substring(0,28)));
     newRow.appendChild(flightnumber);
 
     let flightAirline;
@@ -212,7 +233,7 @@ function purchaseFlight(error,flight) {
         let div = document.createElement("div");
         div.classList.add("loader");
         insure.appendChild(div);
-        contract.flightSuretyApp.payInsuree(flight,contract.passengers[0],(error, result) => {
+        contract.flightSuretyApp.methods.payInsuree(contract.passengers[0]).call((error, result) => {
             
         if (error == null){
             insure.disabled = true;

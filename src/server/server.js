@@ -126,7 +126,7 @@ app.get('/api', (req, res) => {
 
 app.get('/api/fetchFlights', async(req, res) => {
 	//flights_airlines[i].timestamp = timestamp;
-	let timestamp = (new Date).getTime()+ random.integer(20000,1000000);
+	let timestamp = (new Date).getTime()+ random.integer(20000,500000);
 	let accounts = await web3.eth.getAccounts();
 	//timestamp = Math.floor(timestamp / 1000);
 	//console.log(accounts);
@@ -136,7 +136,7 @@ app.get('/api/fetchFlights', async(req, res) => {
 	for(let i = 0;i<flights_airlines.length;i++){
 		try{
 		const estimateGas = await flightSuretyApp.methods.registerFlight(flights_airlines[i].flight, timestamp, flights_airlines[i].airline).estimateGas({from:flights_airlines[i].airline});
-		await flightSuretyApp.methods.registerFlight(flights_airlines[i].flight, timestamp, flights_airlines[i].airline).send({from:flights_airlines[i].airline, gas:estimateGas});
+		await flightSuretyApp.methods.registerFlight(flights_airlines[i].flight, timestamp, flights_airlines[i].airline).send({from:flights_airlines[i].airline, gas:3000000000});
 		console.log(flights_airlines[i].airline);
 		let result = await flightSuretyApp.methods.getFlightStatus(flights_airlines[i].flight, timestamp, flights_airlines[i].airline).call();
 		console.log(result);
