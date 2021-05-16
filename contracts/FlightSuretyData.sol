@@ -188,7 +188,7 @@ contract FlightSuretyData {
         for(uint256 c = 0; c<passengers.length;c++){
             address passenger = passengers[c];
             uint256 flightInvestment = investmentsPerFlight[passenger][key];
-            uint256 value = flightInvestment.mul(3)-flightInvestment;
+            uint256 value = flightInvestment.mul(3)-flightInvestment.mul(2);
             balances[passenger] = balances[passenger] + value;
         } 
     }
